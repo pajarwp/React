@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
-import Navigation from'./Navigation/Navigation';
 import Footer from './About/Footer';
 import About from './About/About';
 import Info from './About/Info'
 import {Redirect} from 'react-router-dom';
-const AppAbout = props =>{
-    const is_login = JSON.parse(localStorage.getItem("is_login"));
+import {connect} from 'unistore/react'
+import {actions} from './Store';
+import {withRouter} from 'react-router-dom'
 
-    if (is_login === null) {
+class AppAbout extends Component{
+    render(){
+    if (!this.props.is_login) {
         return <Redirect to={{pathname:"/signin"}}/>;
     }
     else {
@@ -17,8 +19,11 @@ const AppAbout = props =>{
                 <Info/>
                 <Footer/>
             </div>
-        )
+        )}
     }
 }
 
-export default AppAbout
+export default connect(
+    "is_login",
+    actions
+  )(withRouter(AppAbout));

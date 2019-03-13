@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import Search from './Search/Search'
-import Navigation from './Navigation/Navigation'
 import News from './News/news'
 import TopNews from './News/topnews'
 import axios from 'axios';
-
+import {connect} from 'unistore/react'
+import {actions} from './Store';
+import {withRouter} from 'react-router-dom'
 const imgNull = 0;
 
 const baseUrl = "https://newsapi.org/v2/";
@@ -15,108 +16,33 @@ const country = "us"
 const urlHeadline = baseUrl + "everything?q=" + search + "&apiKey=" + keyApi
 const urlHeadline2 = baseUrl + "top-headlines?country="+ country + "&apiKey=" + keyApi
 class App extends Component {
-  constructor(props){
-    super(props);
-    this.state={
-      listNews:[],
-      listTopNews: [],
-      username:"",
-      isLogin: false
-    }
-  }
-
+  
   componentDidMount = () => {
-  const self = this;
-  axios
-    .get(urlHeadline)
-    .then(function(response){
-      self.setState({listNews: response.data.articles})
-      console.log(response.data)
-    })
-    .catch(function(error) {
-      console.log(error)
-    })
-  axios
-  .get(urlHeadline2)
-  .then(function(response){
-    self.setState({listTopNews: response.data.articles})
-    console.log(response.data)
-  })
-  .catch(function(error) {
-    console.log(error)
-  })
-}
+    this.props.newsBlog().then(() => {
+        console.log(this)
+      }
+    )
+  }
 
 handleInputChange = e => {
-  console.log("event", e.target.value);
-  let value = e.target.value;
-
-  this.setState(
-    {
-      search: value
-    },
-    () => {
-      this.searchNews(value);
+  const value = e.target.value;  
+      this.props.searchNews(value);
     }
-  )
-}
+  
 handleClick = e => {
-  console.log("event", e);
-  let basketball = "Basketball"
-  this.setState(
-    () => {
-      this.searchCategory(basketball);
-    }
-  )
+  const basketball = "Basketball"
+  this.props.searchCategory(basketball)
 }
 handleClick1 = e => {
-  console.log("event", e);
   let volleyball = "Volleyball"
-  this.setState(
-    () => {
-      this.searchCategory(volleyball);
-    }
-  )
+  this.props.searchCategory(volleyball)
 }
 handleClick2 = e => {
-  console.log("event", e);
   let football = "Football"
-  this.setState(
-    () => {
-      this.searchCategory(football);
-    }
-  )
-}
-searchCategory = async value => {
-  console.log("searchCategory", value);
-  const self = this ;
-  try {
-    const response = await axios.get(
-      baseUrl + "everything?q=" + value + "&apiKey=" + keyApi
-    )
-    console.log(response);
-    self.setState({listNews: response.data.articles})
-  }catch (error){
-    console.log(error);
-  }
-}
-searchNews = async keyword => {
-  console.log("searchNews", keyword);
-  const self = this;
-  if (keyword.length > 2){
-    try {
-      const response = await axios.get(
-        baseUrl + "everything?q=" + keyword + "&apiKey=" + keyApi
-      )
-      console.log(response);
-      self.setState({listNews: response.data.articles})
-    }catch (error){
-      console.log(error);
-    }
-  }
+  this.props.searchCategory(football)
 }
   render() {
-    const {listNews, listTopNews, username, isLogin} = this.state;
+    const {listNews, listTopNews} = this.props;
     return (
   <div>
     <div class="container">
@@ -148,4 +74,7 @@ searchNews = async keyword => {
   }
 }
 
-export default App;
+export default connect(
+  "listNews,listTopNews",
+  actions
+)(withRouter(App));
